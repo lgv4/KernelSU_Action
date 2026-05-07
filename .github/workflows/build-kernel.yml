@@ -51,10 +51,19 @@ jobs:
         cd $GITHUB_WORKSPACE/kernel_workspace
         rm -rf clang-aosp
         mkdir -p clang-aosp
-        # استخدام curl كبديل أقوى من wget لتجنب exit code 8
-        curl -L --retry 5 --retry-delay 10 https://github.com/ZyCromerZ/Clang/releases/download/14.0.6-20220914-release/ZyCromerZ-Clang-14.0.6-20220914-release.tar.gz -o clang.tar.gz
-        tar -C clang-aosp/ -zxf clang.tar.gz
-        rm clang.tar.gz
+        echo "تحميل Clang من رابط بديل ومستقر..."
+        # رابط جديد لنسخة Clang 14 مستقرة جداً
+        curl -L https://github.com/mizhen9/Azure-Clang/releases/download/14.0.0/Azure-Clang-14.0.0.tar.gz -o clang.tar.gz
+        
+        # التأكد من أن الملف ليس فارغاً وأنه فعلاً ملف مضغوط
+        if file clang.tar.gz | grep -q "gzip compressed data"; then
+            echo "الملف سليم، جاري فك الضغط..."
+            tar -C clang-aosp/ -zxf clang.tar.gz
+            rm clang.tar.gz
+        else
+            echo "خطأ: الرابط لم يقم بتحميل ملف Clang حقيقي! ❌"
+            exit 1
+        fi
 
     - name: Download Gcc-aosp
       run: |
@@ -98,3 +107,4 @@ jobs:
       with:
         name: AnyKernel3-Mi11Ultra
         path: kernel_workspace/AnyKernel3/*
+concurrency: 
