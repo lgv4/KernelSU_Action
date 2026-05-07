@@ -49,15 +49,24 @@ jobs:
     - name: Download Custom-Clang
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
-        mkdir clang-aosp
-        wget -qO clang.tar.gz https://github.com/ZyCromerZ/Clang/releases/download/14.0.6-20220914-release/ZyCromerZ-Clang-14.0.6-20220914-release.tar.gz
+        rm -rf clang-aosp
+        mkdir -p clang-aosp
+        echo "Starting stable Clang download..."
+        wget --no-check-certificate --tries=5 --retry-connrefused -qO clang.tar.gz https://github.com/ZyCromerZ/Clang/releases/download/14.0.6-20220914-release/ZyCromerZ-Clang-14.0.6-20220914-release.tar.gz
+        echo "Extracting Clang..."
         tar -C clang-aosp/ -zxf clang.tar.gz
-        rm clang.tar.gz
+        if [ -d "clang-aosp/bin" ]; then
+            echo "Clang is ready ✅"
+            rm clang.tar.gz
+        else
+            echo "Error: Clang extraction failed ❌"
+            exit 1
+        fi
 
     - name: Download Gcc-aosp
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
-        mkdir gcc-64 && mkdir gcc-32
+        mkdir -p gcc-64 && mkdir -p gcc-32
         wget -qO gcc-64.tar.gz https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/tags/android-12.1.0_r27.tar.gz
         tar -C gcc-64/ -zxf gcc-64.tar.gz
         wget -qO gcc-32.tar.gz https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/tags/android-12.1.0_r27.tar.gz
